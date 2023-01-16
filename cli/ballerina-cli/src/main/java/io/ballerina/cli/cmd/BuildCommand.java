@@ -182,6 +182,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--native", description = "enable native image generation")
     private Boolean nativeImage;
 
+    @CommandLine.Option(names = "--native-configs", description = "native-image additional configuration path")
+    private Path nativeImageConfigPath;
+
     public void execute() {
         long start = 0;
         if (this.helpFlag) {
@@ -304,6 +307,10 @@ public class BuildCommand implements BLauncherCmd {
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
+        }
+
+        if (nativeImageConfigPath != null) {
+            buildOptionsBuilder.nativeImageConfigPath(nativeImageConfigPath.toString());
         }
 
         return buildOptionsBuilder.setConfigSchemaGen(configSchemaGen)

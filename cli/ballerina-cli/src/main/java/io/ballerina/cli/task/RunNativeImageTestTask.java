@@ -114,15 +114,17 @@ public class RunNativeImageTestTask implements Task {
     private boolean isRerunTestExecution;
     private String singleExecTests;
     private boolean listGroups;
+    private Path nativeImageConfigPath;
 
     TestReport testReport;
 
     public RunNativeImageTestTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                                   String disableGroupList, String testList, String includes, String coverageFormat,
-                                  Map<String, Module> modules, boolean listGroups) {
+                                  Map<String, Module> modules, boolean listGroups, Path nativeImageConfigPath) {
         this.out = out;
         this.isRerunTestExecution = rerunTests;
         this.err = err;
+        this.nativeImageConfigPath = nativeImageConfigPath;
 
         if (disableGroupList != null) {
             this.disableGroupList = disableGroupList;
@@ -496,6 +498,11 @@ public class RunNativeImageTestTask implements Task {
         // native-image configs
         nativeArgs.add("-H:ReflectionConfigurationFiles=" + nativeConfigPath.resolve("reflect-config.json"));
         nativeArgs.add("--no-fallback");
+
+        // native-image additional configs
+        if (nativeImageConfigPath != null) {
+            nativeArgs.add("-H:ConfigurationFileDirectories=" + nativeImageConfigPath);
+        }
 
         try (FileWriter nativeArgumentWriter = new FileWriter(nativeConfigPath.resolve("native-image-args.txt")
                 .toString(), Charset.defaultCharset())) {

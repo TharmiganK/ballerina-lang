@@ -560,6 +560,8 @@ public class JBallerinaBackend extends CompilerBackend {
                     "Install it using: gu install native-image");
         }
 
+        String nativeImageAdditionalConfigs = project.buildOptions().getNativeImageConfigPath();
+
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
             String fileName = project.sourceRoot().toFile().getName();
             nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));
@@ -568,7 +570,9 @@ public class JBallerinaBackend extends CompilerBackend {
                     "-jar",
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
-                    "--no-fallback"
+                    "--no-fallback",
+                    nativeImageAdditionalConfigs != null ? "-H:ConfigurationFileDirectories="
+                            + nativeImageAdditionalConfigs : ""
             };
         } else {
             nativeImageName = project.currentPackage().packageName().toString();
@@ -578,7 +582,9 @@ public class JBallerinaBackend extends CompilerBackend {
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
                     "-H:Path=" + executableFilePath.getParent(),
-                    "--no-fallback"
+                    "--no-fallback",
+                    nativeImageAdditionalConfigs != null ? "-H:ConfigurationFileDirectories="
+                            + nativeImageAdditionalConfigs : ""
             };
         }
 

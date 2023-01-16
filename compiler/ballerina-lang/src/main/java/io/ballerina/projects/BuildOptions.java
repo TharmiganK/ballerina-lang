@@ -29,10 +29,11 @@ public class BuildOptions {
     private String targetDir;
     private Boolean enableCache;
     private Boolean nativeImage;
+    private String nativeImageConfigPath;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
-                 Boolean nativeImage) {
+                 Boolean nativeImage, String nativeImageConfigPath) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
@@ -41,6 +42,7 @@ public class BuildOptions {
         this.targetDir = targetPath;
         this.enableCache = enableCache;
         this.nativeImage = nativeImage;
+        this.nativeImageConfigPath = nativeImageConfigPath;
     }
 
     public boolean testReport() {
@@ -195,6 +197,10 @@ public class BuildOptions {
         return targetDir;
     }
 
+    public String getNativeImageConfigPath() {
+        return nativeImageConfigPath;
+    }
+
     /**
      * Enum to represent build options.
      */
@@ -232,6 +238,7 @@ public class BuildOptions {
         private Boolean enableCache;
         private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
         private Boolean nativeImage;
+        private String nativeImageConfigPath;
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
@@ -318,6 +325,11 @@ public class BuildOptions {
             return this;
         }
 
+        public BuildOptionsBuilder nativeImageConfigPath(String path) {
+            nativeImageConfigPath = path;
+            return this;
+        }
+
         public BuildOptionsBuilder setConfigSchemaGen(Boolean value) {
             compilationOptionsBuilder.setConfigSchemaGen(value);
             return this;
@@ -347,7 +359,7 @@ public class BuildOptions {
         public BuildOptions build() {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
             return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests,
-                    compilationOptions, targetPath, enableCache, nativeImage);
+                    compilationOptions, targetPath, enableCache, nativeImage, nativeImageConfigPath);
         }
     }
 }

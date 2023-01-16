@@ -185,6 +185,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--native", description = "enable running test suite against native image")
     private Boolean nativeImage;
 
+    @CommandLine.Option(names = "--native-configs", description = "native-image additional configuration path")
+    private Path nativeImageConfigPath;
+
     private static final String testCmd = "bal test [--offline]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
 
@@ -307,7 +310,7 @@ public class TestCommand implements BLauncherCmd {
                         includes, coverageFormat, moduleMap, listGroups, enableNativeImageAgent),
                          project.buildOptions().nativeImage())
                 .addTask(new RunNativeImageTestTask(outStream, errStream, rerunTests, groupList, disableGroupList,
-                        testList, includes, coverageFormat, moduleMap, listGroups),
+                        testList, includes, coverageFormat, moduleMap, listGroups, nativeImageConfigPath),
                         !project.buildOptions().nativeImage())
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
