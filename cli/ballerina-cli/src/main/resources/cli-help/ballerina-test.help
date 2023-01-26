@@ -73,11 +73,18 @@ OPTIONS
        --test-report
            Generate an HTML report containing the test results.
 
-       --engage-native-image-agent
+       --enable-native-image-agent
            Engage GraalVM native-image agent while executing the tests. This
            requires `GRAALVM_HOME` to be set in the local machine. The
            native-image configuration files will be created in the `target`
            directory.
+
+       --native
+           Run tests after generating a GraalVM native image.
+
+       --native-configs <path>
+           Specify the native-image additional configuration path. Use with `--native` option.
+
 
 
 EXAMPLES

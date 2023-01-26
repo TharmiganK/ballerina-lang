@@ -56,6 +56,9 @@ OPTIONS
            experimental feature which supports only a limited set of
            functionality.
 
+       --native-configs <path>
+           Specify the native-image additional configuration path. Use with `--native` option.
+
 
 
 EXAMPLES
