@@ -90,6 +90,12 @@ OPTIONS
        --graalvm-build-options
             Additional build options to be passed to the GraalVM native image.
 
+       --graalvm-tracing-agent
+           Engage GraalVM native-image agent while executing the tests. This
+           requires `GRAALVM_HOME` to be set in the local machine. The
+           native-image configuration files will be created in the `target`
+           directory.
+
 
 ARGUMENTS
        (-Ckey=value)...

@@ -135,6 +135,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--list-groups", description = "list the groups available in the tests")
     private boolean listGroups;
 
+    @CommandLine.Option(names = "--graalvm-tracing-agent", description = "engage GraalVM native-image tracing agent")
+    private boolean enableGraalVMTracingAgent;
+
     @CommandLine.Option(names = "--groups", description = "test groups to be executed")
     private String groupList;
 
@@ -343,7 +346,7 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList, testList,
-                        includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs),
+                        includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs, enableGraalVMTracingAgent),
                         project.buildOptions().nativeImage())
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
                         testList, includes, coverageFormat, moduleMap, listGroups),

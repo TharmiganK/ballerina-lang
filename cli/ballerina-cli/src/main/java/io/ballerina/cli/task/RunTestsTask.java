@@ -72,6 +72,7 @@ import static io.ballerina.cli.utils.TestUtils.generateCoverage;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
 import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
+import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FULLY_QULAIFIED_MODULENAME_SEPRATOR;
@@ -93,6 +94,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
  * @since 2.0.0
  */
 public class RunTestsTask implements Task {
+    private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
     private final PrintStream out;
     private final PrintStream err;
     private final String includesInCoverage;
@@ -107,6 +109,7 @@ public class RunTestsTask implements Task {
     private Map<String, Module> coverageModules;
     private boolean listGroups;
     private final List<String> cliArgs;
+    private boolean enableGraalVMTracingAgent;
 
     TestReport testReport;
     private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
@@ -122,7 +125,8 @@ public class RunTestsTask implements Task {
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                         String disableGroupList, String testList, String includes, String coverageFormat,
-                        Map<String, Module> modules, boolean listGroups, String excludes, String[] cliArgs)  {
+                        Map<String, Module> modules, boolean listGroups, String excludes, String[] cliArgs,
+                        boolean enableGraalVMTracingAgent)  {
         this.out = out;
         this.err = err;
         this.isRerunTestExecution = rerunTests;
@@ -142,6 +146,7 @@ public class RunTestsTask implements Task {
         this.coverageModules = modules;
         this.listGroups = listGroups;
         this.excludesInCoverage = excludes;
+        this.enableGraalVMTracingAgent = enableGraalVMTracingAgent;
     }
 
     @Override
@@ -293,7 +298,23 @@ public class RunTestsTask implements Task {
         String orgName = currentPackage.packageOrg().toString();
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
         List<String> cmdArgs = new ArrayList<>();
-        cmdArgs.add(System.getProperty("java.command"));
+        boolean nativeImageAgentEnabled = false;
+        if (enableGraalVMTracingAgent) {
+            String graalvmHome = System.getenv("GRAALVM_HOME");
+            if (graalvmHome != null) {
+                nativeImageAgentEnabled = true;
+                String javaCmd = graalvmHome + File.separator + BIN_DIR_NAME + File.separator
+                        + (OS.contains("win") ? "java.exe" : "java");
+                cmdArgs.add(javaCmd);
+                cmdArgs.add("-agentlib:native-image-agent=config-output-dir=target/native-image-configs");
+            }
+        }
+        if (!nativeImageAgentEnabled) {
+            if (enableGraalVMTracingAgent) {
+                this.out.println("warning: failed to engage GraalVM native-image agent. Please set GRAALVM_HOME.");
+            }
+            cmdArgs.add(System.getProperty("java.command"));
+        }
         cmdArgs.add("-XX:+HeapDumpOnOutOfMemoryError");
         cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
 
