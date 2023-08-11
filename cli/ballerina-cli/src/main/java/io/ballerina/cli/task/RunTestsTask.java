@@ -296,8 +296,11 @@ public class RunTestsTask implements Task {
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
         List<String> cmdArgs = new ArrayList<>();
         String graalvmHome = System.getenv("GRAALVM_HOME");
+        boolean agentEnabled = false;
         if (graalvmHome != null) {
+            agentEnabled = true;
             this.out.println("info: running tests with GraalVM native-image agent");
+            this.out.println("warning: test coverage is disabled when running with GraalVM native-image agent");
             String javaCmd = graalvmHome + File.separator + BIN_DIR_NAME + File.separator
                     + (OS.contains("win") ? "java.exe" : "java");
             cmdArgs.add(javaCmd);
@@ -312,7 +315,7 @@ public class RunTestsTask implements Task {
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
         String jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
                 .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
-        if (coverage) {
+        if (coverage && !agentEnabled) {
             if (!mockClassNames.isEmpty()) {
                 // If we have mock function we need to use jacoco offline instrumentation since jacoco doesn't
                 // support dynamic class file transformations while instrumenting.
