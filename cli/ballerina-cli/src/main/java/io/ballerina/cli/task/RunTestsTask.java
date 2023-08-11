@@ -295,16 +295,14 @@ public class RunTestsTask implements Task {
         String orgName = currentPackage.packageOrg().toString();
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
         List<String> cmdArgs = new ArrayList<>();
-        boolean nativeImageAgentEnabled = false;
         String graalvmHome = System.getenv("GRAALVM_HOME");
         if (graalvmHome != null) {
-            nativeImageAgentEnabled = true;
+            this.out.println("info: running tests with GraalVM native-image agent");
             String javaCmd = graalvmHome + File.separator + BIN_DIR_NAME + File.separator
                     + (OS.contains("win") ? "java.exe" : "java");
             cmdArgs.add(javaCmd);
             cmdArgs.add("-agentlib:native-image-agent=config-output-dir=target/native-image-configs,experimental-omit-config-from-classpath");
-        }
-        if (!nativeImageAgentEnabled) {
+        } else {
             this.out.println("warning: failed to engage GraalVM native-image agent. Please set GRAALVM_HOME.");
             cmdArgs.add(System.getProperty("java.command"));
         }
