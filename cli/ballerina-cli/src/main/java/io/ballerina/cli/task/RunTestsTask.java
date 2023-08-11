@@ -109,7 +109,6 @@ public class RunTestsTask implements Task {
     private Map<String, Module> coverageModules;
     private boolean listGroups;
     private final List<String> cliArgs;
-    private boolean enableGraalVMTracingAgent;
 
     TestReport testReport;
     private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
@@ -125,8 +124,7 @@ public class RunTestsTask implements Task {
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                         String disableGroupList, String testList, String includes, String coverageFormat,
-                        Map<String, Module> modules, boolean listGroups, String excludes, String[] cliArgs,
-                        boolean enableGraalVMTracingAgent)  {
+                        Map<String, Module> modules, boolean listGroups, String excludes, String[] cliArgs)  {
         this.out = out;
         this.err = err;
         this.isRerunTestExecution = rerunTests;
@@ -146,7 +144,6 @@ public class RunTestsTask implements Task {
         this.coverageModules = modules;
         this.listGroups = listGroups;
         this.excludesInCoverage = excludes;
-        this.enableGraalVMTracingAgent = enableGraalVMTracingAgent;
     }
 
     @Override
@@ -299,20 +296,16 @@ public class RunTestsTask implements Task {
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
         List<String> cmdArgs = new ArrayList<>();
         boolean nativeImageAgentEnabled = false;
-        if (enableGraalVMTracingAgent) {
-            String graalvmHome = System.getenv("GRAALVM_HOME");
-            if (graalvmHome != null) {
-                nativeImageAgentEnabled = true;
-                String javaCmd = graalvmHome + File.separator + BIN_DIR_NAME + File.separator
-                        + (OS.contains("win") ? "java.exe" : "java");
-                cmdArgs.add(javaCmd);
-                cmdArgs.add("-agentlib:native-image-agent=config-output-dir=target/native-image-configs,experimental-omit-config-from-classpath");
-            }
+        String graalvmHome = System.getenv("GRAALVM_HOME");
+        if (graalvmHome != null) {
+            nativeImageAgentEnabled = true;
+            String javaCmd = graalvmHome + File.separator + BIN_DIR_NAME + File.separator
+                    + (OS.contains("win") ? "java.exe" : "java");
+            cmdArgs.add(javaCmd);
+            cmdArgs.add("-agentlib:native-image-agent=config-output-dir=target/native-image-configs,experimental-omit-config-from-classpath");
         }
         if (!nativeImageAgentEnabled) {
-            if (enableGraalVMTracingAgent) {
-                this.out.println("warning: failed to engage GraalVM native-image agent. Please set GRAALVM_HOME.");
-            }
+            this.out.println("warning: failed to engage GraalVM native-image agent. Please set GRAALVM_HOME.");
             cmdArgs.add(System.getProperty("java.command"));
         }
         cmdArgs.add("-XX:+HeapDumpOnOutOfMemoryError");
